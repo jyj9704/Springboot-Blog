@@ -1,6 +1,10 @@
 package com.sa.blog.test;
 
+import java.util.function.Supplier;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,11 +12,30 @@ import com.sa.blog.model.RoleType;
 import com.sa.blog.model.User;
 import com.sa.blog.repository.UserRepository;
 
+//data를 리턴해주는 controller = RestController
 @RestController
 public class DummyControllerTest {
 	
 	@Autowired // 같이 메모리에 뜨도록 // 의존성 주입(DI)
 	private UserRepository userRepository;
+	
+	@GetMapping("/dummy/user/{id}")
+	public User detail(@PathVariable int id) {
+		// user객체가 null인지 아닌지 check해서 리턴
+		// {id} 주소로 파라미터를 전달
+		// http://localhost:8000/blog/dummy/user/3
+		User user = userRepository.findById(id).orElseThrow(new Supplier<IllegalArgumentException>() {
+			@Override
+			public IllegalArgumentException get() {
+				return new IllegalArgumentException("해당 유저는 없습니다. id : "+id);
+			}
+		});
+		// user 객체 = 자바 오브젝트 
+		// 웹 브라우저가 이해할 수 있는 데이터로 변환 시켜야함 -> json을 사용할것임
+		// 스프링부트 = MessageConverter라는 애가 응답시에 자동 작동
+		// 자바 오브젝트를 리턴하게 되면 MessageConverter가 jackson 라이브러리를 호출 -> json으로 변환해서 브라우저에 던짐
+		return user;
+	}
 	
 	// http://localhost:8000/blog/dummy/join (요청)
 	// http의 body에 username, password, email 데이터를 가지고 (요청)
