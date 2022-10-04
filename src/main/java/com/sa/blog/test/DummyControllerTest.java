@@ -45,6 +45,8 @@ public class DummyControllerTest {
 		user.setEmail(requestUser.getEmail());
 
 		// userRepository.save(user);
+		
+		//*더티 체킹*
 		return null;
 	}
 	
