@@ -3,6 +3,8 @@ package com.sa.blog.test;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +28,23 @@ public class DummyControllerTest {
 	@Autowired // 같이 메모리에 뜨도록 // 의존성 주입(DI)
 	private UserRepository userRepository;
 	
+	//save 함수는 아이디를 전달하지 않으면 insert, save 함수는 아이디를 전달하면 해당 id에 대한 데이터가 있으면 update, 아이디를 전달하면 해당 id에 대한 데이터가 없으면 insert
 	// email, password
 	// RequestBody -> 제이슨 데이터 받기 위해 작성
+	@Transactional
 	@PutMapping("/dummy/user/{id}")
 	public User updateUser(@PathVariable int id, @RequestBody User requestUser) {
 		System.out.println("id : "+id);
 		System.out.println("password : "+requestUser.getPassword());
 		System.out.println("email : "+requestUser.getEmail());
 		
+		User user = userRepository.findById(id).orElseThrow(()-> {
+			return new IllegalArgumentException("수정에 실패하였습니다.");			
+		});
+		user.setPassword(requestUser.getPassword());
+		user.setEmail(requestUser.getEmail());
+
+		// userRepository.save(user);
 		return null;
 	}
 	
@@ -61,7 +72,7 @@ public class DummyControllerTest {
 		User user = userRepository.findById(id).orElseThrow(new Supplier<IllegalArgumentException>() {
 			@Override
 			public IllegalArgumentException get() {
-				return new IllegalArgumentException("해당 유저는 없습니다. id : "+id);
+				return new IllegalArgumentException("해당 사용자가 없습니다.");
 			}
 		});
 		// user 객체 = 자바 오브젝트 
@@ -75,9 +86,12 @@ public class DummyControllerTest {
 	// http의 body에 username, password, email 데이터를 가지고 (요청)
 	@PostMapping("/dummy/join")
 	public String join(User user) { // key = value (규칙)
+		System.out.println("id : "+user.getId());
 		System.out.println("username : "+user.getUsername());
 		System.out.println("password : "+user.getPassword());
 		System.out.println("email : "+user.getEmail());
+		System.out.println("role : "+user.getRole());
+		System.out.println("createDate : "+user.getCreateDate());
 		
 		user.setRole(RoleType.USER);
 		userRepository.save(user);
