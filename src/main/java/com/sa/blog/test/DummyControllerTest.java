@@ -6,10 +6,12 @@ import java.util.function.Supplier;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,10 +30,20 @@ public class DummyControllerTest {
 	@Autowired // 같이 메모리에 뜨도록 // 의존성 주입(DI)
 	private UserRepository userRepository;
 	
+	@DeleteMapping("/dummy/user/{id}")
+	public String delete(@PathVariable int id) {
+		try {
+			userRepository.deleteById(id);
+		} catch(EmptyResultDataAccessException e) {
+			return "삭제 실패하였습니다. 해당 id는 DB에 없습니다.";
+		}
+		return "삭제되었습니다.id :"+id;
+	}
+	
 	//save 함수는 아이디를 전달하지 않으면 insert, save 함수는 아이디를 전달하면 해당 id에 대한 데이터가 있으면 update, 아이디를 전달하면 해당 id에 대한 데이터가 없으면 insert
 	// email, password
 	// RequestBody -> 제이슨 데이터 받기 위해 작성
-	@Transactional
+	@Transactional // 함수 종료 -> 자동 commit
 	@PutMapping("/dummy/user/{id}")
 	public User updateUser(@PathVariable int id, @RequestBody User requestUser) {
 		System.out.println("id : "+id);
@@ -46,8 +58,8 @@ public class DummyControllerTest {
 
 		// userRepository.save(user);
 		
-		//*더티 체킹*
-		return null;
+		//*더티 체킹* -> 모아뒀다가 한번에 체킹하는것(db에서)
+		return user;
 	}
 	
 	// http://localhost:8000/blog/dummy/user
