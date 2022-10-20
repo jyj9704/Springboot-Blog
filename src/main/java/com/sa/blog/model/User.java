@@ -43,7 +43,7 @@ public class User {
 	private String email;
 	
 	// @ColumnDefault("user")
-	//DB는 RoleType이 없음
+	// DB는 RoleType이 없음
 	@Enumerated(EnumType.STRING)
 	private RoleType role; // Enum // ADMIN, USER // RoleType = 타입이 두개만 넣을 수 있도록 강제로 설정
 	

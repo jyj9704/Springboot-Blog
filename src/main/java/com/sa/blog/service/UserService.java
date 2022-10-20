@@ -19,7 +19,7 @@ public class UserService {
 	private UserRepository userRepository;
 	
 	@Transactional
-	public Integer 회원가입(User user) {
+	public int 회원가입(User user) {
 		try {
 			userRepository.save(user);
 			return 1;
